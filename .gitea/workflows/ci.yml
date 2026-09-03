@@ -1,0 +1,24 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install --upgrade pip setuptools wheel
+      - run: python -m pip install -e ".[dev]"
+      - run: python -m compileall -q src tests
+      - run: python -m pytest
+      - run: python -m ruff check src tests
+      - run: python -m bandit -q -r src
+      - run: python -m pip_audit
+      - run: python -m pip check
+      - run: python -m build
+      - run: test "$(sha256sum SPEC.md | cut -d' ' -f1)" = "c0638446fadbae86cc61fcf752ba4ddd86a84645e052162f99b112aecf8192ad"

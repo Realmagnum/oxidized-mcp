@@ -1,15 +1,21 @@
-FROM python:3.11-slim
+FROM python:3.12-slim AS builder
 
-WORKDIR /app
-
+WORKDIR /build
 COPY pyproject.toml README.md ./
 COPY src/ ./src/
-COPY tests/ ./tests/
+RUN python -m pip install --no-cache-dir --prefix=/install .
 
-RUN pip install --no-cache-dir .
+FROM python:3.12-slim
 
-ENV OXIDIZED_CONFIG_PATH=/srv/oxidized/configs
+RUN apt-get update \
+    && apt-get install --no-install-recommends -y git \
+    && rm -rf /var/lib/apt/lists/* \
+    && useradd --create-home --uid 10001 oxidized-mcp
+COPY --from=builder /install /usr/local
+USER oxidized-mcp
+WORKDIR /home/oxidized-mcp
 
-EXPOSE 8080
+ENV OXIDIZED_CONFIG_PATH=/srv/oxidized/configs \
+    PYTHONUNBUFFERED=1
 
-CMD ["python", "-m", "src.server"]
+CMD ["oxidized-mcp"]
