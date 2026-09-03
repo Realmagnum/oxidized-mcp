@@ -14,6 +14,7 @@ from mcp.server.mcpserver import MCPServer
 from .config import Settings
 from .errors import OxidizedMCPError
 from .git_reader import GitReader
+from .oxidized_rest import OxidizedRestReader
 from .plugins import PluginRegistry
 from .service import OxidizedService
 
@@ -123,6 +124,16 @@ class OxidizedMCPServer:
         def validate_repository() -> dict[str, Any]:
             return self._execute(self.service.validate_repository)
 
+        if self.service.rest_reader is not None:
+            @self.mcp.tool(
+                description=(
+                    "Return live Oxidized inventory and last backup result via the optional read-only GET /nodes.json API. "
+                    "This is operational telemetry, not Git config freshness; it never triggers a backup and excludes inventory vars."
+                )
+            )
+            def list_oxidized_nodes() -> dict[str, Any]:
+                return self._execute(self.service.list_oxidized_nodes)
+
     def _register_entity_tool(self, name: str, entity: str, summary: str) -> None:
         description = f"{summary} Includes vendor, mandatory config_date, config_age_hours and stale_warning. Input: hostname."
 
@@ -150,6 +161,15 @@ def build_server(settings: Settings) -> OxidizedMCPServer:
         stale_threshold_hours=settings.stale_threshold_hours,
         max_search_results=settings.max_search_results,
         redact_secrets_by_default=settings.redact_secrets_by_default,
+        rest_reader=(
+            OxidizedRestReader(
+                settings.oxidized_rest_base_url,
+                timeout_seconds=settings.oxidized_rest_timeout_seconds,
+                cache_ttl_seconds=settings.oxidized_rest_cache_ttl_seconds,
+            )
+            if settings.oxidized_rest_enabled
+            else None
+        ),
     )
     return OxidizedMCPServer(service)
 

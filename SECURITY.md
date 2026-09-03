@@ -4,6 +4,8 @@
 
 `oxidized-mcp` is a local read-only stdio server. It reads a mounted Oxidized Git working tree and never connects to network devices. Do not expose it as an unauthenticated HTTP service.
 
+Optional Oxidized REST telemetry is disabled by default. When enabled, it permits only a loopback HTTP base URL and only requests `GET /nodes.json`; redirects are rejected. It cannot call backup triggers, reloads or any mutation endpoint. REST inventory `vars` are deliberately omitted from MCP responses.
+
 ## Configuration confidentiality
 
 Network backups commonly contain SNMP communities, password hashes, TACACS/RADIUS keys and management addressing. Full config output is redacted by default. Use `include_secrets=true` only for an explicit, controlled need and remember that the result enters the AI agent context.

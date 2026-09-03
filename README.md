@@ -17,6 +17,7 @@ Read-only MCP stdio server для структурированного поис�
 - `git grep` с timeout и лимитами
 - Stable machine-readable errors
 - Redaction вероятных secrets в полном конфиге по умолчанию
+- Опциональная live-телеметрия Oxidized через loopback-only `GET /nodes.json`
 
 ## Установка
 
@@ -52,7 +53,8 @@ oxidized-mcp
       "type": "local",
       "command": ["/path/to/venv/bin/oxidized-mcp"],
       "environment": {
-        "OXIDIZED_CONFIG_PATH": "/srv/oxidized/configs"
+        "OXIDIZED_CONFIG_PATH": "/srv/oxidized/configs",
+        "OXIDIZED_REST_ENABLED": "true"
       }
     }
   }
@@ -60,6 +62,22 @@ oxidized-mcp
 ```
 
 Точный формат config может зависеть от версии OpenCode. Ключевое требование — запустить `oxidized-mcp` через stdio и передать `OXIDIZED_CONFIG_PATH`.
+
+## Опциональный Oxidized REST
+
+По умолчанию REST отключён: MCP читает только Git-витрину конфигураций. При `OXIDIZED_REST_ENABLED=true` появляется инструмент `list_oxidized_nodes`, который делает только `GET http://127.0.0.1:8888/nodes.json` и возвращает live-инвентарь с результатом последней попытки backup.
+
+```bash
+OXIDIZED_REST_ENABLED=true
+OXIDIZED_REST_BASE_URL=http://127.0.0.1:8888
+OXIDIZED_REST_TIMEOUT=3
+OXIDIZED_REST_CACHE_TTL=30
+```
+
+- URL принимается только как loopback HTTP base URL; произвольные host, path и credentials отклоняются.
+- В ответ не попадают Oxidized `vars`, чтобы не раскрывать credential-like inventory fields.
+- REST-данные не объединяются с Git-инструментами: `status` последней попытки не является `config_date` или `stale_warning`.
+- MCP не имеет и не вызывает `/node/next`, reload или другие mutation endpoints.
 
 ## Docker
 
@@ -97,6 +115,7 @@ docker run --rm -i \
 - `get_device_freshness`
 - `validate_repository`
 - operators `present`, `absent`, `unrestricted` в глобальном поиске
+- `list_oxidized_nodes` при явном `OXIDIZED_REST_ENABLED=true`
 
 ## Важное ограничение fixtures
 

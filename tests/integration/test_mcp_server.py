@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from oxidized_mcp.oxidized_rest import OxidizedRestReader
 from oxidized_mcp.server import OxidizedMCPServer
 from oxidized_mcp.service import OxidizedService
 
@@ -25,6 +26,17 @@ def test_server_registers_phase_one_and_improvement_tools(service: OxidizedServi
         "get_device_freshness",
         "validate_repository",
     } == names
+
+
+def test_server_registers_rest_tool_only_when_enabled(service: OxidizedService) -> None:
+    assert "list_oxidized_nodes" not in {tool.name for tool in OxidizedMCPServer(service).mcp._tool_manager.list_tools()}
+
+    rest_service = OxidizedService(
+        service.reader,
+        service.registry,
+        rest_reader=OxidizedRestReader("http://127.0.0.1:8888", timeout_seconds=1, cache_ttl_seconds=30),
+    )
+    assert "list_oxidized_nodes" in {tool.name for tool in OxidizedMCPServer(rest_service).mcp._tool_manager.list_tools()}
 
 
 def test_server_converts_domain_error_to_stable_envelope(service: OxidizedService) -> None:

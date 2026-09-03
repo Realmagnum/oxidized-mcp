@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import pytest
+
+from oxidized_mcp.errors import QueryValidationError
 from oxidized_mcp.service import OxidizedService
 
 
@@ -64,3 +67,8 @@ def test_validate_repository(service: OxidizedService) -> None:
     assert result["device_count"] == 6
     assert result["recognized"] == 6
     assert result["problems"] == []
+
+
+def test_rest_inventory_is_explicitly_disabled_by_default(service: OxidizedService) -> None:
+    with pytest.raises(QueryValidationError, match="disabled"):
+        service.list_oxidized_nodes()

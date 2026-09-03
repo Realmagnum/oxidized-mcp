@@ -10,6 +10,7 @@ from .cache import ParsedConfigCache
 from .errors import DeviceNotFoundError, QueryValidationError, VendorDetectionError
 from .git_reader import ConfigFile, GitReader
 from .models import DeviceConfig, DeviceRecord, RawSearchHit, SearchHit, SearchOperator
+from .oxidized_rest import OxidizedRestReader
 from .plugins import PluginRegistry
 
 _SECRET_PATTERNS = (
@@ -30,6 +31,7 @@ class OxidizedService:
         stale_threshold_hours: float = 24.0,
         max_search_results: int = 100,
         redact_secrets_by_default: bool = True,
+        rest_reader: OxidizedRestReader | None = None,
     ) -> None:
         self.reader = reader
         self.registry = registry
@@ -37,6 +39,7 @@ class OxidizedService:
         self.stale_threshold_hours = stale_threshold_hours
         self.max_search_results = max_search_results
         self.redact_secrets_by_default = redact_secrets_by_default
+        self.rest_reader = rest_reader
 
     def _config_files(self) -> list[ConfigFile]:
         return self.reader.list_configs()
@@ -109,6 +112,11 @@ class OxidizedService:
                 continue
             devices.append(self._record(config_file, plugin.name, detection, raw).model_dump(mode="json"))
         return {"ok": True, "devices": devices, "unrecognized": unrecognized}
+
+    def list_oxidized_nodes(self) -> dict[str, Any]:
+        if self.rest_reader is None:
+            raise QueryValidationError("Oxidized REST integration is disabled")
+        return self.rest_reader.list_nodes()
 
     def get_device_config(self, hostname: str, include_secrets: bool = False) -> dict[str, Any]:
         config_file = self._find(hostname)

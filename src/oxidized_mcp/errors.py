@@ -33,3 +33,7 @@ class VendorDetectionError(OxidizedMCPError):
 
 class QueryValidationError(OxidizedMCPError):
     code = "invalid_query"
+
+
+class OxidizedRestError(OxidizedMCPError):
+    code = "oxidized_rest_unavailable"
