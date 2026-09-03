@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import subprocess
 from pathlib import Path
 
 import pytest
@@ -16,6 +17,18 @@ def test_list_configs_and_mandatory_stale_date(oxidized_repo: Path) -> None:
     assert freshness.config_date is not None
     assert freshness.age_hours >= 47
     assert freshness.stale
+
+
+def test_list_configs_preserves_ipv4_style_hostname(oxidized_repo: Path) -> None:
+    source = oxidized_repo / "dlink" / "dgs-3630.cfg"
+    target = oxidized_repo / "sw-10.90.90.13"
+    source.rename(target)
+    subprocess.run(["git", "add", "-A"], cwd=oxidized_repo, check=True)
+    subprocess.run(["git", "commit", "-qm", "rename fixture"], cwd=oxidized_repo, check=True)
+
+    reader = GitReader(oxidized_repo)
+    configs = reader.list_configs()
+    assert "sw-10.90.90.13" in [item.hostname for item in configs]
 
 
 def test_raw_grep_is_bounded(oxidized_repo: Path) -> None:

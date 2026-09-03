@@ -115,9 +115,12 @@ class GitReader:
                 continue
             stat = full_path.stat()
             posix = PurePosixPath(relative_path)
+            # Oxidized commonly names extensionless backups with an IPv4 suffix.
+            # Path.stem would incorrectly drop the final octet as a file extension.
+            hostname = posix.name if posix.suffix.removeprefix(".").isdigit() else posix.stem
             configs.append(
                 ConfigFile(
-                    hostname=posix.stem,
+                    hostname=hostname,
                     group=posix.parent.name if posix.parent != PurePosixPath(".") else None,
                     relative_path=relative_path,
                     full_path=full_path,

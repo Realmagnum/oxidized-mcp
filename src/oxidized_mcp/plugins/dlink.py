@@ -10,4 +10,6 @@ class DLinkPlugin(ClassicCLIPlugin):
         r"^create\s+vlan\s+\d+",
         r"^interface\s+port\s+\d+",
         r"^config\s+ports\s+",
+        r"^!.*\bDGS-\d+",
+        r"^interface\s+Ethernet\d+/\d+/\d+",
     )
