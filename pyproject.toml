@@ -9,7 +9,7 @@ description = "Read-only MCP server for structured search over Oxidized network 
 readme = "README.md"
 requires-python = ">=3.11"
 license = "MIT"
-authors = [{name = "magnum", email = "magnum@khamidulin.ru"}]
+authors = [{name = "Realmagnum", email = "realmagnum@gmail.com"}]
 keywords = ["mcp", "oxidized", "network-config", "dlink", "eltex", "snr"]
 dependencies = [
   "mcp>=2.1,<3",
@@ -30,8 +30,8 @@ dev = [
 oxidized-mcp = "oxidized_mcp.server:main"
 
 [project.urls]
-Repository = "https://gitea.rmg7.com/agent/oxidized-mcp"
-Specification = "https://gitea.rmg7.com/agent/oxidized-mcp/src/branch/main/SPEC.md"
+Repository = "https://github.com/Realmagnum/oxidized-mcp"
+Specification = "https://github.com/Realmagnum/oxidized-mcp/blob/main/SPEC.md"
 
 [tool.setuptools.packages.find]
 where = ["src"]

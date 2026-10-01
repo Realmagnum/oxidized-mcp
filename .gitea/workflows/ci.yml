@@ -21,4 +21,4 @@ jobs:
       - run: python -m pip_audit
       - run: python -m pip check
       - run: python -m build
-      - run: test "$(sha256sum SPEC.md | cut -d' ' -f1)" = "c0638446fadbae86cc61fcf752ba4ddd86a84645e052162f99b112aecf8192ad"
+      - run: test "$(sha256sum SPEC.md | cut -d' ' -f1)" = "7bdbd0529df508920e0e600a55cf1efb08e5c67c451d49ab8aebc8c360bbbbe4"
